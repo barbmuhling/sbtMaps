@@ -1,0 +1,3 @@
+# sbtMaps
+## Downloading and mapping environmental fields for January 2022 BLOOFINZ cruise
+###### These scripts download and map sea surface temperature, surface chlorophyll and sea surface height anomaly for the northeast Indian Ocean. Maps are output in near-real-time, and are designed to support the “BLOOFINZ” sampling cruise, which is targeting larval southern bluefin tuna. Environmental fields are applied to a larval species distribution model (Generalized Additive Model) developed for Atlantic bluefin tuna in the Gulf of Mexico. However, it is not known if environmental conditions associated with larvae of the two species are the same, so these results should be interpreted with caution
