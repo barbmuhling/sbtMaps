@@ -59,7 +59,8 @@ makeMaps(datToExtract = datToExtract, saveMaps = "yes", add80sLarvae = "yes",
 # # Or can run for multiple dates
 # dtsToExtract <- seq(as.Date("2022-01-02"), by = "day", length = 13)
 # for(j in 1:length(dtsToExtract)) {
-#   makeMaps(datToExtract = dtsToExtract[j], saveMaps = "yes", tmpdir = tmpdir, datadir = datadir, mapdir = mapdir)
+#   makeMaps(datToExtract = dtsToExtract[j], saveMaps = "yes", add80sLarvae = "yes",
+         # tmpdir = tmpdir, datadir = datadir, mapdir = mapdir)
 # }
 
 ################################################################################################################
