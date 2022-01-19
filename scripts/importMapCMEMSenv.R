@@ -19,11 +19,11 @@ library(tools)
 ############################################ Specify directories ###############################################
 ################################################################################################################
 # Specify where you want the downloaded environmental files to be saved
-tmpdir <- "./sbt/env" 
+tmpdir <- "./env" 
 # Specify where to look for the ship's daily locations, the larval BFT GAM, and the EEZ shapefile
-datadir <- "./sbt/data" 
+datadir <- "./data" 
 # Specify where to save the output maps
-mapdir <- "./sbt/plots"
+mapdir <- "./plots"
 
 ################################################################################################################
 ############# Load the other objects you will need: EEZ for mapping, larval GAM ################################
