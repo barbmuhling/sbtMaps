@@ -39,7 +39,7 @@ larvaeFiles <- list.files(path = mapdir, pattern = "larvae", full.names = TRUE)
 fileInfoLarvae <- data.frame("name" = larvaeFiles)
 # Sort the images by name (date), so can select most recent to animate
 fileInfoLarvae$dt <- fileInfoLarvae$name
-fileInfoLarvae$dt <- gsub("./sbt/plots/larvae_", "", fileInfoLarvae$dt)
+fileInfoLarvae$dt <- gsub("./plots/larvae_", "", fileInfoLarvae$dt)
 fileInfoLarvae$dt <- gsub(".png", "", fileInfoLarvae$dt)
 fileInfoLarvae$dt <- gsub("_", "-", fileInfoLarvae$dt)
 fileInfoLarvae$dt <- as.Date(fileInfoLarvae$dt, format = "%Y-%M-%d")
