@@ -5,7 +5,7 @@
 library(gifski)
 
 # Where to look for the maps to animate
-mapdir <- "./sbt/plots" 
+mapdir <- "./plots" 
 
 # An example SLA animation
 # First get all sla images in /plots
@@ -13,7 +13,7 @@ slaFiles <- list.files(path = mapdir, pattern = "sla", full.names = TRUE)
 fileInfo <- data.frame("name" = slaFiles)
 # Sort the images by name (date), so can select most recent to animate
 fileInfo$dt <- fileInfo$name
-fileInfo$dt <- gsub("./sbt/plots/sla_", "", fileInfo$dt)
+fileInfo$dt <- gsub("./plots/sla_", "", fileInfo$dt)
 fileInfo$dt <- gsub(".png", "", fileInfo$dt)
 fileInfo$dt <- gsub("_", "-", fileInfo$dt)
 fileInfo$dt <- as.Date(fileInfo$dt, format = "%Y-%M-%d")
