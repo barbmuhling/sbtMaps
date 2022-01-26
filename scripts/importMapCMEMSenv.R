@@ -34,6 +34,8 @@ load(paste0(datadir, "/gomgam.rda"))
 # Examine model summary or partial plots if you like
 # summary(gam1)
 # plot(gam1, scale = 0, pages = 1)
+# Load depth contours
+bathym <- readRDS("./data/bathym.rds")
 
 ################################################################################################################
 ################################ Set a date to extract variables for ###########################################
@@ -57,10 +59,10 @@ makeMaps(datToExtract = datToExtract, saveMaps = "yes", add80sLarvae = "yes",
          tmpdir = tmpdir, datadir = datadir, mapdir = mapdir)
 
 # # Or can run for multiple dates
-# dtsToExtract <- seq(as.Date("2022-01-02"), by = "day", length = 13)
+# dtsToExtract <- seq(as.Date("2022-01-20"), by = "day", length = 6)
 # for(j in 1:length(dtsToExtract)) {
 #   makeMaps(datToExtract = dtsToExtract[j], saveMaps = "yes", add80sLarvae = "yes",
-         # tmpdir = tmpdir, datadir = datadir, mapdir = mapdir)
+#             tmpdir = tmpdir, datadir = datadir, mapdir = mapdir)
 # }
 
 ################################################################################################################
@@ -170,7 +172,7 @@ makeMaps <- function(datToExtract, saveMaps, add80sLarvae, tmpdir, datadir, mapd
       varMelt$sst <- varMelt$sst - 273.15 # convert from Kelvin to Celcius
     }
     # Trim from global extent down to NE Indian Ocean. You can adjust these limits if you like
-    varTrim <- subset(varMelt, lon > 100 & lon < 130 & lat > -25 & lat < -5)
+    varTrim <- subset(varMelt, lon > 100 & lon < 135 & lat > -25 & lat < -5)
     varTrim$dt <- dateToMap
     nc_close(ncFile)
     return(varTrim)
@@ -193,8 +195,9 @@ makeMaps <- function(datToExtract, saveMaps, add80sLarvae, tmpdir, datadir, mapd
   geosAgg <- aggregate(cbind(ugos, vgos) ~ lonrd + latrd, geos, FUN = mean, na.rm = TRUE)
   
   ########################################################################################################
-  # Now let's map each variable: first define a coastline and some color scales
-  oicoast <- borders("world", colour = "gray50", fill="gray50", xlim = c(100, 130), ylim = c(-30, 0))
+  # Now let's map each variable: first define a rough coastline and some color scales
+  # The coastline is rough and misses some islands but it's quick and easy to plot
+  oicoast <- borders("world", colour = "black", fill = "gray50", xlim = c(100, 130), ylim = c(-30, 0))
   mycolsst <- colors()[c(473,562,71,610,655,653,621,34)]
   mypalettesst <- colorRampPalette(mycolsst)(255)
   mycolsla <- colors() [c(490,461,564,430,1,652,585,555,645)]
@@ -211,45 +214,53 @@ makeMaps <- function(datToExtract, saveMaps, add80sLarvae, tmpdir, datadir, mapd
   oldsbt <- data.frame("lon" = 115.8333, "lat" = -16.5)
   # Now map: SST
   sstMap <- ggplot(sst) + geom_tile(aes(x = lon, y = lat, fill = sst)) + 
-    scale_fill_gradientn(colours = mypalettesst, limits = c(), na.value = NA) + # can manually set limits if wanted
+    scale_fill_gradientn("SST", colours = mypalettesst, limits = c(22.5, 32.5), na.value = NA) + # manually set limits
     geom_path(data = ship, aes(x = lon, y = lat)) +
     geom_point(data = ship, aes(x = lon, y = lat, color = locn), size = 2) + 
     scale_color_manual("ship location", values = c("magenta", "black")) +
-    geom_path(data = eez, aes(x = long, y = lat, group = group)) +
-    # If you don't want to show the old 1987 larval catch locations, comment out the next 3 lines
-    # geom_point(data = oldsbt, aes(x = lon, y = lat, shape = 1, size = 1), pch = 23, fill = "red") +
-    # scale_size_continuous("1987 larvae", range = 4, labels = NULL) +
-    # guides(size = guide_legend(order = 1), color = guide_legend(order = 2)) +
+    geom_path(data = eez, aes(x = long, y = lat, group = group), color = "gray50", lwd = 0.25, alpha = 0.7) +
+    geom_contour(data = bathym, aes(x = longitude, y = latitude, z = altitude, linetype = factor(..level..)), stat = "contour",
+                 color = "black", breaks = c(-200, -1000)) + 
+    scale_linetype_manual("depth", values = c("solid", "dashed")) +
+    guides(line_type = guide_legend(order = 1), color = guide_legend(order = 2), fill = guide_colorbar(order = 3)) +
     oicoast + ggtitle(paste0(sst$dt[1], " Sea Surface Temperature")) + xlab("Longitude") + ylab("Latitude") +
-    coord_quickmap(xlim = c(100, 130), ylim = c(-25, -5)) + theme_bw()
-  # sstMap
-  
+    coord_quickmap(xlim = c(100, 135), ylim = c(-25, -5)) + theme_bw()
+  sstMap
+
   # CHL. Note 4th root transform so is easier to see gradients
-  chlMap <- ggplot(chl) + geom_tile(aes(x = lon, y = lat, fill = chl^0.25)) + # Note chl transform 
-    scale_fill_gradientn(colours = mypalettechl, limits = c(), na.value = NA) + 
+  chlMap <- ggplot(chl) + geom_tile(aes(x = lon, y = lat, fill = log(chl))) + # Note chl transform 
+    scale_fill_gradientn("Chl (log trans)", colours = mypalettechl, limits = c(-3.5, 3), na.value = NA) + # manually set limits
     geom_path(data = ship, aes(x = lon, y = lat)) +
     geom_point(data = ship, aes(x = lon, y = lat, color = locn), size = 2) + 
     scale_color_manual("ship location", values = c("magenta", "black")) +
-    geom_path(data = eez, aes(x = long, y = lat, group = group)) +
+    geom_path(data = eez, aes(x = long, y = lat, group = group), color = "gray50", lwd = 0.25, alpha = 0.7) +
+    geom_contour(data = bathym, aes(x = longitude, y = latitude, z = altitude, linetype = factor(..level..)), stat = "contour",
+                 color = "black", breaks = c(-200, -1000)) + 
+    scale_linetype_manual("depth", values = c("solid", "dashed")) +
+    guides(line_type = guide_legend(order = 1), color = guide_legend(order = 2), fill = guide_colorbar(order = 3)) +
     oicoast + ggtitle(paste0(chl$dt[1], " Sea Surface Chlorophyll")) + xlab("Longitude") + ylab("Latitude") +
-    coord_quickmap(xlim = c(100, 130), ylim = c(-25, -5)) + theme_bw()
-  # chlMap
+    coord_quickmap(xlim = c(100, 135), ylim = c(-25, -5)) + theme_bw()
+  chlMap
   
   # SLA. This product is coarser than sst or chl (0.25x0.25 degrees), which is why it looks chonky
   # Multiplying ugos/vgos by 2 just to make the arrows look clearer on the map. You can play with changing this value
   # I'm fixing the scale limits so animations are consistent
   slaMap <- ggplot() + geom_tile(data = sla, aes(x = lon, y = lat, fill = sla)) + 
-    scale_fill_gradientn(colours = mypalettesla, limits = c(-0.25, 0.5), na.value = NA) + 
+    scale_fill_gradientn("SLA", colours = mypalettesla, limits = c(-0.25, 0.5), na.value = NA) + 
     geom_path(data = ship, aes(x = lon, y = lat)) +
     geom_point(data = ship, aes(x = lon, y = lat, color = locn), size = 2) + 
     scale_color_manual("ship location", values = c("magenta", "black")) +
-    geom_path(data = eez, aes(x = long, y = lat, group = group)) +
+    geom_path(data = eez, aes(x = long, y = lat, group = group), color = "gray50", lwd = 0.25, alpha = 0.7) +
+    geom_contour(data = bathym, aes(x = longitude, y = latitude, z = altitude, linetype = factor(..level..)), stat = "contour",
+                 color = "black", breaks = c(-200, -1000)) + 
+    scale_linetype_manual("depth", values = c("solid", "dashed")) +
     geom_segment(data = geosAgg, aes(x = lonrd, y = latrd, xend = lonrd + (ugos * 2), yend = latrd + (vgos * 2)), 
                  arrow = arrow(length = unit(0.1, "cm")), na.rm = TRUE) +
+    guides(line_type = guide_legend(order = 1), color = guide_legend(order = 2), fill = guide_colorbar(order = 3)) +
     oicoast + ggtitle(paste0(sla$dt[1], " Sea Surface Height Anomaly Plus Geostrophic Currents")) + 
     xlab("Longitude") + ylab("Latitude") +
-    coord_quickmap(xlim = c(100, 130), ylim = c(-25, -5)) + theme_bw()
-  # slaMap
+    coord_quickmap(xlim = c(100, 135), ylim = c(-25, -5)) + theme_bw()
+  slaMap
   
   ######################################################################################################
   # We can map predictions from a species distribution model trained on larval occurrences from the GOM
@@ -269,6 +280,8 @@ makeMaps <- function(datToExtract, saveMaps, add80sLarvae, tmpdir, datadir, mapd
   toScore <- inner_join(sstAgg, chlAgg, by = c("lonrd", "latrd"))
   toScore <- inner_join(toScore, slaAgg, by = c("lonrd", "latrd"))
   toScore$pred <- predict(gam1, toScore, type = "response")
+  # Probabilities < 0 don't make sense
+  toScore$pred <- ifelse(toScore$pred < 0, 0, toScore$pred)
   # Set a flag for pixels with environmental conditions not seen in the GOM
   # (We assume predictions will be much more uncertain here)
   toScore$outOfRange <- ifelse(toScore$sst > 30.3 | toScore$sst < 21 | 
@@ -276,15 +289,19 @@ makeMaps <- function(datToExtract, saveMaps, add80sLarvae, tmpdir, datadir, mapd
                                  toScore$sla > 0.7 | toScore$sla < -0.4, 1, 0)
   # Now map. Note optional "add blank" line, which masks environments outside GOM training data 
   larvalMap <- ggplot(toScore) + geom_tile(aes(x = lonrd, y = latrd, fill = pred)) + 
-    scale_fill_gradientn(colours = mypalettesst, limits = c(0,1), na.value = NA) + 
+    scale_fill_gradientn("GAM preds", colours = mypalettesst, limits = c(0,1), na.value = NA) + 
     geom_tile(data = subset(toScore, outOfRange == 1), aes(x = lonrd, y = latrd), fill = "white") + # add blank
     geom_path(data = ship, aes(x = lon, y = lat)) +
     geom_point(data = ship, aes(x = lon, y = lat, color = locn), size = 2) + 
     scale_color_manual("ship location", values = c("magenta", "black")) +
-    geom_path(data = eez, aes(x = long, y = lat, group = group)) +
+    geom_path(data = eez, aes(x = long, y = lat, group = group), color = "gray50", lwd = 0.25, alpha = 0.7) +
+    geom_contour(data = bathym, aes(x = longitude, y = latitude, z = altitude, linetype = factor(..level..)), stat = "contour",
+                 color = "black", breaks = c(-200, -1000)) + 
+    scale_linetype_manual("depth", values = c("solid", "dashed")) +
+    guides(line_type = guide_legend(order = 1), color = guide_legend(order = 2), fill = guide_colorbar(order = 3)) +
     oicoast + ggtitle(paste0(datToExtract, " Potential Larval Habitat")) + xlab("Longitude") + ylab("Latitude") +
-    coord_quickmap(xlim = c(100, 130), ylim = c(-25, -5)) + theme_bw()
-  # larvalMap
+    coord_quickmap(xlim = c(100, 135), ylim = c(-25, -5)) + theme_bw()
+  larvalMap
   
   # If desired, add general location of 1987 larval occurrences to all maps
   if(add80sLarvae == "yes") {
