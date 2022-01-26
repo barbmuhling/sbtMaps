@@ -45,7 +45,7 @@ dat <- Sys.Date()
 # Most products have a 1 day delay, so we will extract for yesterday 
 datToExtract <- dat - days(1)  
 # Or you can manually set another date if you want
-# datToExtract <- as.Date("2022-01-07")
+# datToExtract <- as.Date("2022-01-19")
 
 # Re-load the csv with the ship's position (assuming this is manually updated regularly from 
 # https://mfp.us/programme/mappage or AIS)
@@ -58,12 +58,12 @@ ship$date <- as.Date(ship$date, format = "%m/%d/%Y")
 makeMaps(datToExtract = datToExtract, saveMaps = "yes", add80sLarvae = "yes",
          tmpdir = tmpdir, datadir = datadir, mapdir = mapdir)
 
-# # Or can run for multiple dates
-# dtsToExtract <- seq(as.Date("2022-01-20"), by = "day", length = 6)
-# for(j in 1:length(dtsToExtract)) {
-#   makeMaps(datToExtract = dtsToExtract[j], saveMaps = "yes", add80sLarvae = "yes",
-#             tmpdir = tmpdir, datadir = datadir, mapdir = mapdir)
-# }
+# Or can run for multiple dates
+dtsToExtract <- seq(as.Date("2022-01-20"), by = "day", length = 6)
+for(j in 1:length(dtsToExtract)) {
+  makeMaps(datToExtract = dtsToExtract[j], saveMaps = "yes", add80sLarvae = "yes",
+            tmpdir = tmpdir, datadir = datadir, mapdir = mapdir)
+}
 
 ################################################################################################################
 ###################################### Here is the function ####################################################
@@ -208,16 +208,16 @@ makeMaps <- function(datToExtract, saveMaps, add80sLarvae, tmpdir, datadir, mapd
   # Now define the ship's position on the day the environmental vars were extracted, plus the past track
   # Also remove any future ship locations (if you're rerunning a date from a little while ago)
   ship$locn <- ifelse(ship$date == datToExtract, "today", ifelse(ship$date < datToExtract, "past", "future"))
-  ship <- subset(ship, locn != "future")
+  shipSub <- subset(ship, locn != "future")
   
   # Add location of sbt larval collections back in the 1980s
   oldsbt <- data.frame("lon" = 115.8333, "lat" = -16.5)
   # Now map: SST
   sstMap <- ggplot(sst) + geom_tile(aes(x = lon, y = lat, fill = sst)) + 
     scale_fill_gradientn("SST", colours = mypalettesst, limits = c(22.5, 32.5), na.value = NA) + # manually set limits
-    geom_path(data = ship, aes(x = lon, y = lat)) +
-    geom_point(data = ship, aes(x = lon, y = lat, color = locn), size = 2) + 
-    scale_color_manual("ship location", values = c("magenta", "black")) +
+    geom_path(data = shipSub, aes(x = lon, y = lat)) +
+    geom_point(data = shipSub, aes(x = lon, y = lat, color = locn), size = 2) + 
+    scale_color_manual("ship location", values = c("black", "magenta")) +
     geom_path(data = eez, aes(x = long, y = lat, group = group), color = "gray50", lwd = 0.25, alpha = 0.7) +
     geom_contour(data = bathym, aes(x = longitude, y = latitude, z = altitude, linetype = factor(..level..)), stat = "contour",
                  color = "black", breaks = c(-200, -1000)) + 
@@ -230,9 +230,9 @@ makeMaps <- function(datToExtract, saveMaps, add80sLarvae, tmpdir, datadir, mapd
   # CHL. Note 4th root transform so is easier to see gradients
   chlMap <- ggplot(chl) + geom_tile(aes(x = lon, y = lat, fill = log(chl))) + # Note chl transform 
     scale_fill_gradientn("Chl (log trans)", colours = mypalettechl, limits = c(-3.5, 3), na.value = NA) + # manually set limits
-    geom_path(data = ship, aes(x = lon, y = lat)) +
-    geom_point(data = ship, aes(x = lon, y = lat, color = locn), size = 2) + 
-    scale_color_manual("ship location", values = c("magenta", "black")) +
+    geom_path(data = shipSub, aes(x = lon, y = lat)) +
+    geom_point(data = shipSub, aes(x = lon, y = lat, color = locn), size = 2) + 
+    scale_color_manual("ship location", values = c("black", "magenta")) +
     geom_path(data = eez, aes(x = long, y = lat, group = group), color = "gray50", lwd = 0.25, alpha = 0.7) +
     geom_contour(data = bathym, aes(x = longitude, y = latitude, z = altitude, linetype = factor(..level..)), stat = "contour",
                  color = "black", breaks = c(-200, -1000)) + 
@@ -247,9 +247,9 @@ makeMaps <- function(datToExtract, saveMaps, add80sLarvae, tmpdir, datadir, mapd
   # I'm fixing the scale limits so animations are consistent
   slaMap <- ggplot() + geom_tile(data = sla, aes(x = lon, y = lat, fill = sla)) + 
     scale_fill_gradientn("SLA", colours = mypalettesla, limits = c(-0.25, 0.5), na.value = NA) + 
-    geom_path(data = ship, aes(x = lon, y = lat)) +
-    geom_point(data = ship, aes(x = lon, y = lat, color = locn), size = 2) + 
-    scale_color_manual("ship location", values = c("magenta", "black")) +
+    geom_path(data = shipSub, aes(x = lon, y = lat)) +
+    geom_point(data = shipSub, aes(x = lon, y = lat, color = locn), size = 2) + 
+    scale_color_manual("ship location", values = c("black", "magenta")) +
     geom_path(data = eez, aes(x = long, y = lat, group = group), color = "gray50", lwd = 0.25, alpha = 0.7) +
     geom_contour(data = bathym, aes(x = longitude, y = latitude, z = altitude, linetype = factor(..level..)), stat = "contour",
                  color = "black", breaks = c(-200, -1000)) + 
@@ -291,9 +291,9 @@ makeMaps <- function(datToExtract, saveMaps, add80sLarvae, tmpdir, datadir, mapd
   larvalMap <- ggplot(toScore) + geom_tile(aes(x = lonrd, y = latrd, fill = pred)) + 
     scale_fill_gradientn("GAM preds", colours = mypalettesst, limits = c(0,1), na.value = NA) + 
     geom_tile(data = subset(toScore, outOfRange == 1), aes(x = lonrd, y = latrd), fill = "white") + # add blank
-    geom_path(data = ship, aes(x = lon, y = lat)) +
-    geom_point(data = ship, aes(x = lon, y = lat, color = locn), size = 2) + 
-    scale_color_manual("ship location", values = c("magenta", "black")) +
+    geom_path(data = shipSub, aes(x = lon, y = lat)) +
+    geom_point(data = shipSub, aes(x = lon, y = lat, color = locn), size = 2) + 
+    scale_color_manual("ship location", values = c("black", "magenta")) +
     geom_path(data = eez, aes(x = long, y = lat, group = group), color = "gray50", lwd = 0.25, alpha = 0.7) +
     geom_contour(data = bathym, aes(x = longitude, y = latitude, z = altitude, linetype = factor(..level..)), stat = "contour",
                  color = "black", breaks = c(-200, -1000)) + 
