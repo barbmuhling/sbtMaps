@@ -57,3 +57,29 @@ enLarvae <- max(fileInfoLarvaeRecent$dt)
 # I am saving them to a subfolder of ./plots called "animations"
 gifski(larvaeFilesAnim, gif_file = paste0(mapdir, "/animations/larvae", stLarvae, "_to_", enLarvae, ".gif"), 
        width = 800, height = 600, delay = 1)
+
+##################################################################################################
+# SST animation
+# First get all  images in /plots
+sstFiles <- list.files(path = mapdir, pattern = "sst", full.names = TRUE)
+fileInfosst <- data.frame("name" = sstFiles)
+# Sort the images by name (date), so can select most recent to animate
+fileInfosst$dt <- fileInfosst$name
+fileInfosst$dt <- gsub("./plots/sst_", "", fileInfosst$dt)
+fileInfosst$dt <- gsub(".png", "", fileInfosst$dt)
+fileInfosst$dt <- gsub("_", "-", fileInfosst$dt)
+fileInfosst$dt <- as.Date(fileInfosst$dt, format = "%Y-%M-%d")
+fileInfosstSorted <- fileInfosst[order(fileInfosst$dt, decreasing = TRUE), ]
+# Subset down to just last (e.g.) 5-7 days
+fileInfosstRecent <- fileInfosstSorted[1:7,]
+# Resort ascending so gif runs in the right order
+fileInfosstRecent <- fileInfosstRecent[order(fileInfosstRecent$dt, decreasing = FALSE), ]
+sstFilesAnim <- c(fileInfosstRecent$name)
+
+# Extract dates covered so can use in output filename
+stsst <- min(fileInfosstRecent$dt)
+ensst <- max(fileInfosstRecent$dt)
+# Make and save the animation
+# I am saving them to a subfolder of ./plots called "animations"
+gifski(sstFilesAnim, gif_file = paste0(mapdir, "/animations/sst", stsst, "_to_", ensst, ".gif"), 
+       width = 800, height = 600, delay = 1)
