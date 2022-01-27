@@ -207,7 +207,7 @@ makeMaps <- function(datToExtract, saveMaps, add80sLarvae, tmpdir, datadir, mapd
   
   # Now define the ship's position on the day the environmental vars were extracted, plus the past track
   # Also remove any future ship locations (if you're rerunning a date from a little while ago)
-  ship$locn <- ifelse(ship$date == datToExtract, "today", ifelse(ship$date < datToExtract, "past", "future"))
+  ship$locn <- ifelse(ship$date == dat, "today", ifelse(ship$date < dat, "past", "future"))
   shipSub <- subset(ship, locn != "future")
   
   # Add location of sbt larval collections back in the 1980s
@@ -215,14 +215,14 @@ makeMaps <- function(datToExtract, saveMaps, add80sLarvae, tmpdir, datadir, mapd
   # Now map: SST
   sstMap <- ggplot(sst) + geom_tile(aes(x = lon, y = lat, fill = sst)) + 
     scale_fill_gradientn("SST", colours = mypalettesst, limits = c(22.5, 32.5), na.value = NA) + # manually set limits
-    geom_path(data = shipSub, aes(x = lon, y = lat)) +
-    geom_point(data = shipSub, aes(x = lon, y = lat, color = locn), size = 2) + 
-    scale_color_manual("ship location", values = c("black", "magenta")) +
     geom_path(data = eez, aes(x = long, y = lat, group = group), color = "gray50", lwd = 0.25, alpha = 0.7) +
     geom_contour(data = bathym, aes(x = longitude, y = latitude, z = altitude, linetype = factor(..level..)), stat = "contour",
                  color = "black", breaks = c(-200, -1000)) + 
     scale_linetype_manual("depth", values = c("solid", "dashed")) +
     guides(line_type = guide_legend(order = 1), color = guide_legend(order = 2), fill = guide_colorbar(order = 3)) +
+    geom_path(data = shipSub, aes(x = lon, y = lat), color = "orchid1") +
+    geom_point(data = shipSub, aes(x = lon, y = lat, color = locn), size = 2) + 
+    scale_color_manual("ship location", values = c("orchid1", "red")) +
     oicoast + ggtitle(paste0(sst$dt[1], " Sea Surface Temperature")) + xlab("Longitude") + ylab("Latitude") +
     coord_quickmap(xlim = c(100, 135), ylim = c(-25, -5)) + theme_bw()
   sstMap
@@ -230,14 +230,14 @@ makeMaps <- function(datToExtract, saveMaps, add80sLarvae, tmpdir, datadir, mapd
   # CHL. Note 4th root transform so is easier to see gradients
   chlMap <- ggplot(chl) + geom_tile(aes(x = lon, y = lat, fill = log(chl))) + # Note chl transform 
     scale_fill_gradientn("Chl (log trans)", colours = mypalettechl, limits = c(-3.5, 3), na.value = NA) + # manually set limits
-    geom_path(data = shipSub, aes(x = lon, y = lat)) +
-    geom_point(data = shipSub, aes(x = lon, y = lat, color = locn), size = 2) + 
-    scale_color_manual("ship location", values = c("black", "magenta")) +
     geom_path(data = eez, aes(x = long, y = lat, group = group), color = "gray50", lwd = 0.25, alpha = 0.7) +
     geom_contour(data = bathym, aes(x = longitude, y = latitude, z = altitude, linetype = factor(..level..)), stat = "contour",
                  color = "black", breaks = c(-200, -1000)) + 
     scale_linetype_manual("depth", values = c("solid", "dashed")) +
     guides(line_type = guide_legend(order = 1), color = guide_legend(order = 2), fill = guide_colorbar(order = 3)) +
+    geom_path(data = shipSub, aes(x = lon, y = lat), color = "orchid1") +
+    geom_point(data = shipSub, aes(x = lon, y = lat, color = locn), size = 2) + 
+    scale_color_manual("ship location", values = c("orchid1", "red")) +
     oicoast + ggtitle(paste0(chl$dt[1], " Sea Surface Chlorophyll")) + xlab("Longitude") + ylab("Latitude") +
     coord_quickmap(xlim = c(100, 135), ylim = c(-25, -5)) + theme_bw()
   chlMap
@@ -247,9 +247,6 @@ makeMaps <- function(datToExtract, saveMaps, add80sLarvae, tmpdir, datadir, mapd
   # I'm fixing the scale limits so animations are consistent
   slaMap <- ggplot() + geom_tile(data = sla, aes(x = lon, y = lat, fill = sla)) + 
     scale_fill_gradientn("SLA", colours = mypalettesla, limits = c(-0.25, 0.5), na.value = NA) + 
-    geom_path(data = shipSub, aes(x = lon, y = lat)) +
-    geom_point(data = shipSub, aes(x = lon, y = lat, color = locn), size = 2) + 
-    scale_color_manual("ship location", values = c("black", "magenta")) +
     geom_path(data = eez, aes(x = long, y = lat, group = group), color = "gray50", lwd = 0.25, alpha = 0.7) +
     geom_contour(data = bathym, aes(x = longitude, y = latitude, z = altitude, linetype = factor(..level..)), stat = "contour",
                  color = "black", breaks = c(-200, -1000)) + 
@@ -257,6 +254,9 @@ makeMaps <- function(datToExtract, saveMaps, add80sLarvae, tmpdir, datadir, mapd
     geom_segment(data = geosAgg, aes(x = lonrd, y = latrd, xend = lonrd + (ugos * 2), yend = latrd + (vgos * 2)), 
                  arrow = arrow(length = unit(0.1, "cm")), na.rm = TRUE) +
     guides(line_type = guide_legend(order = 1), color = guide_legend(order = 2), fill = guide_colorbar(order = 3)) +
+    geom_path(data = shipSub, aes(x = lon, y = lat), color = "orchid1") +
+    geom_point(data = shipSub, aes(x = lon, y = lat, color = locn), size = 2) + 
+    scale_color_manual("ship location", values = c("orchid1", "red")) +
     oicoast + ggtitle(paste0(sla$dt[1], " Sea Surface Height Anomaly Plus Geostrophic Currents")) + 
     xlab("Longitude") + ylab("Latitude") +
     coord_quickmap(xlim = c(100, 135), ylim = c(-25, -5)) + theme_bw()
@@ -291,14 +291,14 @@ makeMaps <- function(datToExtract, saveMaps, add80sLarvae, tmpdir, datadir, mapd
   larvalMap <- ggplot(toScore) + geom_tile(aes(x = lonrd, y = latrd, fill = pred)) + 
     scale_fill_gradientn("GAM preds", colours = mypalettesst, limits = c(0,1), na.value = NA) + 
     geom_tile(data = subset(toScore, outOfRange == 1), aes(x = lonrd, y = latrd), fill = "white") + # add blank
-    geom_path(data = shipSub, aes(x = lon, y = lat)) +
-    geom_point(data = shipSub, aes(x = lon, y = lat, color = locn), size = 2) + 
-    scale_color_manual("ship location", values = c("black", "magenta")) +
     geom_path(data = eez, aes(x = long, y = lat, group = group), color = "gray50", lwd = 0.25, alpha = 0.7) +
     geom_contour(data = bathym, aes(x = longitude, y = latitude, z = altitude, linetype = factor(..level..)), stat = "contour",
                  color = "black", breaks = c(-200, -1000)) + 
     scale_linetype_manual("depth", values = c("solid", "dashed")) +
     guides(line_type = guide_legend(order = 1), color = guide_legend(order = 2), fill = guide_colorbar(order = 3)) +
+    geom_path(data = shipSub, aes(x = lon, y = lat), color = "orchid1") +
+    geom_point(data = shipSub, aes(x = lon, y = lat, color = locn), size = 2) + 
+    scale_color_manual("ship location", values = c("orchid1", "red")) +
     oicoast + ggtitle(paste0(datToExtract, " Potential Larval Habitat")) + xlab("Longitude") + ylab("Latitude") +
     coord_quickmap(xlim = c(100, 135), ylim = c(-25, -5)) + theme_bw()
   larvalMap
