@@ -72,9 +72,12 @@ makeMaps <- function(datToExtract, saveMaps, add80sLarvae, tmpdir, datadir, mapd
   yr <- year(datToExtract)
   mo <- month(datToExtract)
   da <- day(datToExtract)
-  # Month must be in 2-digit form
+  # Month/day must be in 2-digit form
   if(nchar(mo) == 1) {
     mo <- paste0(0, mo)
+  }
+  if(nchar(da) == 1) {
+    da <- paste0(0, da)
   }
   # We need credentials to get data from CMEMS. You can use mine or create your own (free) account if you like
   userpwd <- "bmuhling:BarbaraCMEMS2017"
@@ -323,25 +326,26 @@ makeMaps <- function(datToExtract, saveMaps, add80sLarvae, tmpdir, datadir, mapd
   # Save maps as images. If files are too large, adjust "res" to be smaller
   # Doing pngs, as smaller and can animate easier. Tiff is similar call, just add compression = "lzw"
   if(saveMaps == "yes") {
-  # SST
-  png(filename = paste0(mapdir, "/sst_", yr, "_", mo, "_", da, ".png"), 
-       width = 2600, height = 1600, res = 300, restoreConsole = TRUE)
-  print(sstMap)
-  dev.off()
-  # CHL
-  png(filename = paste0(mapdir, "/chl_", yr, "_", mo, "_", da, ".png"), 
-       width = 2600, height = 1600, res = 300, restoreConsole = TRUE)
-  print(chlMap)
-  dev.off()
-  # SLA
-  png(filename = paste0(mapdir, "/sla_", yr, "_", mo, "_", da, ".png"), 
-       width = 2600, height = 1600, res = 300, restoreConsole = TRUE)
-  print(slaMap)
-  dev.off()
-  # Larval Habitat
-  png(filename = paste0(mapdir, "/larvae_", yr, "_", mo, "_", da, ".png"), 
-       width = 2600, height = 1600, res = 300, restoreConsole = TRUE)
-  print(larvalMap)
-  dev.off()
+    dir.create(paste0(mapdir, "/", as.numeric(mo), "_", da, "_", yr))
+    # SST
+    png(filename = paste0(mapdir, "/", as.numeric(mo), "_", da, "_", yr, "/sst_", yr, "_", mo, "_", da, ".png"), 
+         width = 2600, height = 1600, res = 300, restoreConsole = TRUE)
+    print(sstMap)
+    dev.off()
+    # CHL
+    png(filename = paste0(mapdir, "/", as.numeric(mo), "_", da, "_", yr, "/chl_", yr, "_", mo, "_", da, ".png"), 
+         width = 2600, height = 1600, res = 300, restoreConsole = TRUE)
+    print(chlMap)
+    dev.off()
+    # SLA
+    png(filename = paste0(mapdir, "/", as.numeric(mo), "_", da, "_", yr, "/sla_", yr, "_", mo, "_", da, ".png"), 
+         width = 2600, height = 1600, res = 300, restoreConsole = TRUE)
+    print(slaMap)
+    dev.off()
+    # Larval Habitat
+    png(filename = paste0(mapdir, "/", as.numeric(mo), "_", da, "_", yr, "/larvae_", yr, "_", mo, "_", da, ".png"), 
+         width = 2600, height = 1600, res = 300, restoreConsole = TRUE)
+    print(larvalMap)
+    dev.off()
   }
 }
