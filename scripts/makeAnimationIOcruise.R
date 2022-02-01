@@ -19,7 +19,7 @@ fileInfo$dt <- fileInfo$name
 fileInfo$dt <- str_sub(fileInfo$dt, start = -14)
 fileInfo$dt <- gsub(".png", "", fileInfo$dt)
 fileInfo$dt <- gsub("_", "-", fileInfo$dt)
-fileInfo$dt <- as.Date(fileInfo$dt, format = "%Y-%M-%d")
+fileInfo$dt <- as.Date(fileInfo$dt, format = "%Y-%m-%d") 
 fileInfoSorted <- fileInfo[order(fileInfo$dt, decreasing = TRUE), ]
 # Subset down to just last (e.g.) 5-7 days
 fileInfoRecent <- fileInfoSorted[1:7,]
@@ -32,8 +32,11 @@ st <- min(fileInfoRecent$dt)
 en <- max(fileInfoRecent$dt)
 # Make and save the animation
 # I am saving them to a subfolder of ./plots called "animations"
+yr <- year(datToExtract)
+mo <- month(datToExtract)
+da <- day(datToExtract)
 if(!dir.exists(paste0(mapdir, "/animations/", as.numeric(mo), "_", da, "_", yr))) {
-  dir.create(paste0(mapdir, "/animations/", as.numeric(mo), "_", da, "_", yr))
+   dir.create(paste0(mapdir, "/animations/", as.numeric(mo), "_", da, "_", yr))
 }
 gifski(slaFilesAnim, gif_file = paste0(mapdir, "/animations/", month(en), "_", day(en), "_", year(en), "/",
                                        "sla", st, "_to_", en, ".gif"), 
@@ -50,7 +53,7 @@ fileInfoLarvae$dt <- fileInfoLarvae$name
 fileInfoLarvae$dt <- str_sub(fileInfoLarvae$dt, start = -14)
 fileInfoLarvae$dt <- gsub(".png", "", fileInfoLarvae$dt)
 fileInfoLarvae$dt <- gsub("_", "-", fileInfoLarvae$dt)
-fileInfoLarvae$dt <- as.Date(fileInfoLarvae$dt, format = "%Y-%M-%d")
+fileInfoLarvae$dt <- as.Date(fileInfoLarvae$dt, format = "%Y-%m-%d")
 fileInfoLarvaeSorted <- fileInfoLarvae[order(fileInfoLarvae$dt, decreasing = TRUE), ]
 # Subset down to just last (e.g.) 5-7 days
 fileInfoLarvaeRecent <- fileInfoLarvaeSorted[1:7,]
@@ -78,7 +81,7 @@ fileInfosst$dt <- fileInfosst$name
 fileInfosst$dt <- str_sub(fileInfosst$dt, start = -14)
 fileInfosst$dt <- gsub(".png", "", fileInfosst$dt)
 fileInfosst$dt <- gsub("_", "-", fileInfosst$dt)
-fileInfosst$dt <- as.Date(fileInfosst$dt, format = "%Y-%M-%d")
+fileInfosst$dt <- as.Date(fileInfosst$dt, format = "%Y-%m-%d")
 fileInfosstSorted <- fileInfosst[order(fileInfosst$dt, decreasing = TRUE), ]
 # Subset down to just last (e.g.) 5-7 days
 fileInfosstRecent <- fileInfosstSorted[1:7,]
