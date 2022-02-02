@@ -118,7 +118,7 @@ makeMaps <- function(datToExtract, saveMaps, add80sLarvae, tmpdir, datadir, mapd
   urlsst <- paste0("ftp://nrt.cmems-du.eu/Core/SST_GLO_SST_L4_NRT_OBSERVATIONS_010_", 
                    "001/METOFFICE-GLO-SST-L4-NRT-OBS-SST-V2/", yr, "/", mo, "/")
   datesst = paste(gsub("-", "", datToExtract), sep = "") 
-  namesst = paste0("sst_", yr, "_", mo, "_", day(datToExtract)) # For output fname
+  namesst = paste0("sst_", yr, "_", mo, "_", da) # For output fname
   # Download the data. SST file is about 15mb
   acquire_cmems(url = urlsst, date = datesst, userpwd = userpwd, name = namesst, tmpdir = tmpdir)
   
@@ -129,7 +129,7 @@ makeMaps <- function(datToExtract, saveMaps, add80sLarvae, tmpdir, datadir, mapd
   urlchl <- paste0("ftp://nrt.cmems-du.eu/Core/OCEANCOLOUR_GLO_CHL_L4_NRT_OBSERVATIONS_009_", 
                    "033/dataset-oc-glo-bio-multi-l4-chl_interpolated_4km_daily-rt/", yr, "/", mo, "/")
   datechl = paste(gsub("-", "", datToExtract), sep = "") 
-  namechl = paste0("chl_", yr, "_", mo, "_", day(datToExtract)) # For output fname
+  namechl = paste0("chl_", yr, "_", mo, "_", da) # For output fname
   # Download the data. CHL file is about 92mb, so will take a minute
   acquire_cmems(url = urlchl, date = datechl, userpwd = userpwd, name = namechl, tmpdir = tmpdir)
   
@@ -140,7 +140,7 @@ makeMaps <- function(datToExtract, saveMaps, add80sLarvae, tmpdir, datadir, mapd
   urlsla <- paste0("ftp://nrt.cmems-du.eu/Core/SEALEVEL_GLO_PHY_L4_NRT_OBSERVATIONS_008_", 
                    "046/dataset-duacs-nrt-global-merged-allsat-phy-l4","/", yr, "/", mo, "/")
   datesla = paste("l4_", gsub("-", "", datToExtract), sep = "")
-  namesla = paste0("sla_", yr, "_", mo, "_", day(datToExtract)) # For output fname
+  namesla = paste0("sla_", yr, "_", mo, "_", da) # For output fname
   # Download the data. SLA file is about 9mb
   acquire_cmems(url = urlsla, date = datesla, userpwd = userpwd, name = namesla, tmpdir = tmpdir)
   
