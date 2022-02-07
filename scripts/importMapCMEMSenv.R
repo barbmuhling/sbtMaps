@@ -45,7 +45,7 @@ dat <- Sys.Date()
 # Most products have a 1 day delay, so we will extract for yesterday 
 datToExtract <- dat - days(1)  
 # Or you can manually set another date if you want
-# datToExtract <- as.Date("2022-01-19")
+# datToExtract <- as.Date("2022-02-02")
 
 # Re-load the csv with the ship's position (assuming this is manually updated regularly from 
 # https://mfp.us/programme/mappage or AIS)
@@ -210,7 +210,8 @@ makeMaps <- function(datToExtract, saveMaps, add80sLarvae, tmpdir, datadir, mapd
   
   # Now define the ship's position on the day the environmental vars were extracted, plus the past track
   # Also remove any future ship locations (if you're rerunning a date from a little while ago)
-  ship$locn <- ifelse(ship$date == dat, "today", ifelse(ship$date < dat, "past", "future"))
+  ship$locn <- ifelse(ship$date == (datToExtract + 1), "today", 
+                      ifelse(ship$date < (datToExtract + 1), "past", "future"))
   shipSub <- subset(ship, locn != "future")
   
   # Add location of sbt larval collections back in the 1980s
@@ -227,8 +228,29 @@ makeMaps <- function(datToExtract, saveMaps, add80sLarvae, tmpdir, datadir, mapd
     geom_point(data = shipSub, aes(x = lon, y = lat, color = locn), size = 2) + 
     scale_color_manual("ship location", values = c("orchid1", "red")) +
     oicoast + ggtitle(paste0(sst$dt[1], " Sea Surface Temperature")) + xlab("Longitude") + ylab("Latitude") +
-    coord_quickmap(xlim = c(100, 135), ylim = c(-25, -5)) + theme_bw()
+    coord_quickmap(xlim = c(100, 135), ylim = c(-25, -5)) + theme_bw() 
   sstMap
+  
+  # # Quick neatened SST map for sci-comm
+  # sstMap2 <- ggplot(sst) + geom_tile(aes(x = lon, y = lat, fill = sst)) + 
+  #   scale_fill_gradientn("SST", colours = mypalettesst, limits = c(23.3, 30.8), na.value = NA) + 
+  #   guides(line_type = guide_legend(order = 1), color = guide_legend(order = 2), 
+  #       fill = guide_colorbar(order = 3)) +
+  #   geom_path(data = shipSub, aes(x = lon, y = lat), color = "blue") +
+  #   geom_point(data = shipSub, aes(x = lon, y = lat), size = 2, pch = 21, color = "blue") +
+  #   geom_point(data = shipSub, aes(x = lon, y = lat, color = locn), size = 2) + 
+  #   geom_point(data = shipSub, aes(x = lon, y = lat), size = 2, pch = 21, color = "blue") +
+  #   scale_color_manual("ship location", values = c("lightblue", "blue")) +
+  #   geom_point(data = oldsbt, aes(x = lon, y = lat, shape = 1, size = 0.5), pch = 23, fill = "red") +
+  #   scale_size_continuous("1987 larvae", range = 3, labels = NULL) +
+  #   guides(size = guide_legend(order = 1), color = guide_legend(order = 2)) +
+  #   oicoast + ggtitle(paste0(sst$dt[1], " Sea Surface Temperature")) + xlab("Longitude") + ylab("Latitude") +
+  #   coord_quickmap(xlim = c(101.6, 129.5), ylim = c(-24, -6)) + theme_bw()
+  # sstMap2
+  # # Save as jpg, everyone can use that
+  # jpeg(filename = "Feb_4_2022_SST_IO.jpg", width = 5400, height = 3600, res = 600)
+  # print(sstMap2)
+  # dev.off()
 
   # CHL. Note 4th root transform so is easier to see gradients
   chlMap <- ggplot(chl) + geom_tile(aes(x = lon, y = lat, fill = log(chl))) + # Note chl transform 

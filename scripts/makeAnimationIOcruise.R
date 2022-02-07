@@ -9,6 +9,9 @@ library(stringr)
 # Where to look for the maps to animate
 mapdir <- "./plots" 
 
+# What date should be the terminal date of the animation?
+datToExtract <- as.Date("2022-02-06")
+
 # An example SLA animation
 # First get all sla images in /plots
 slaFiles <- list.files(path = mapdir, pattern = "sla", full.names = TRUE, recursive = TRUE)
@@ -22,7 +25,9 @@ fileInfo$dt <- gsub("_", "-", fileInfo$dt)
 fileInfo$dt <- as.Date(fileInfo$dt, format = "%Y-%m-%d") 
 fileInfoSorted <- fileInfo[order(fileInfo$dt, decreasing = TRUE), ]
 # Subset down to just last (e.g.) 5-7 days
-fileInfoRecent <- fileInfoSorted[1:7,]
+# fileInfoRecent <- fileInfoSorted[1:7,]
+# Or, select 7 days prior to target date
+fileInfoRecent <- subset(fileInfoSorted, dt <= datToExtract & dt >= (datToExtract - 6))
 # Resort ascending so gif runs in the right order
 fileInfoRecent <- fileInfoRecent[order(fileInfoRecent$dt, decreasing = FALSE), ]
 slaFilesAnim <- c(fileInfoRecent$name)
@@ -56,7 +61,9 @@ fileInfoLarvae$dt <- gsub("_", "-", fileInfoLarvae$dt)
 fileInfoLarvae$dt <- as.Date(fileInfoLarvae$dt, format = "%Y-%m-%d")
 fileInfoLarvaeSorted <- fileInfoLarvae[order(fileInfoLarvae$dt, decreasing = TRUE), ]
 # Subset down to just last (e.g.) 5-7 days
-fileInfoLarvaeRecent <- fileInfoLarvaeSorted[1:7,]
+# fileInfoLarvaeRecent <- fileInfoLarvaeSorted[1:7,]
+# Or, select 7 days prior to target date
+fileInfoLarvaeRecent <- subset(fileInfoLarvaeSorted, dt <= datToExtract & dt >= (datToExtract - 6))
 # Resort ascending so gif runs in the right order
 fileInfoLarvaeRecent <- fileInfoLarvaeRecent[order(fileInfoLarvaeRecent$dt, decreasing = FALSE), ]
 larvaeFilesAnim <- c(fileInfoLarvaeRecent$name)
@@ -84,7 +91,9 @@ fileInfosst$dt <- gsub("_", "-", fileInfosst$dt)
 fileInfosst$dt <- as.Date(fileInfosst$dt, format = "%Y-%m-%d")
 fileInfosstSorted <- fileInfosst[order(fileInfosst$dt, decreasing = TRUE), ]
 # Subset down to just last (e.g.) 5-7 days
-fileInfosstRecent <- fileInfosstSorted[1:7,]
+# fileInfosstRecent <- fileInfosstSorted[1:7,]
+# Or, select 7 days prior to target date
+fileInfosstRecent <- subset(fileInfosstSorted, dt <= datToExtract & dt >= (datToExtract - 6))
 # Resort ascending so gif runs in the right order
 fileInfosstRecent <- fileInfosstRecent[order(fileInfosstRecent$dt, decreasing = FALSE), ]
 sstFilesAnim <- c(fileInfosstRecent$name)
