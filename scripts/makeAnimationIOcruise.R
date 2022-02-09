@@ -10,7 +10,7 @@ library(stringr)
 mapdir <- "./plots" 
 
 # What date should be the terminal date of the animation?
-datToExtract <- as.Date("2022-02-06")
+# datToExtract <- as.Date("2022-02-06")
 
 # An example SLA animation
 # First get all sla images in /plots
