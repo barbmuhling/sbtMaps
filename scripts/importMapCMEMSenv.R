@@ -59,7 +59,7 @@ makeMaps(datToExtract = datToExtract, saveMaps = "yes", add80sLarvae = "yes",
          tmpdir = tmpdir, datadir = datadir, mapdir = mapdir)
 
 # Or can run for multiple dates
-dtsToExtract <- seq(as.Date("2022-01-20"), by = "day", length = 6)
+dtsToExtract <- seq(as.Date("2022-02-12"), by = "day", length = 8)
 for(j in 1:length(dtsToExtract)) {
   makeMaps(datToExtract = dtsToExtract[j], saveMaps = "yes", add80sLarvae = "yes",
             tmpdir = tmpdir, datadir = datadir, mapdir = mapdir)
@@ -268,16 +268,17 @@ makeMaps <- function(datToExtract, saveMaps, add80sLarvae, tmpdir, datadir, mapd
   chlMap
   
   # SLA. This product is coarser than sst or chl (0.25x0.25 degrees), which is why it looks chonky
-  # Multiplying ugos/vgos by 2 just to make the arrows look clearer on the map. You can play with changing this value
+  # Multiplying ugos/vgos by 2 or 3 just to make the arrows look clearer on the map
+  # You can play with changing this value
   # I'm fixing the scale limits so animations are consistent
   slaMap <- ggplot() + geom_tile(data = sla, aes(x = lon, y = lat, fill = sla)) + 
     scale_fill_gradientn("SLA", colours = mypalettesla, limits = c(-0.25, 0.5), na.value = NA) + 
     geom_path(data = eez, aes(x = long, y = lat, group = group), color = "gray50", lwd = 0.25, alpha = 0.7) +
-    geom_contour(data = bathym, aes(x = longitude, y = latitude, z = altitude, linetype = factor(..level..)), stat = "contour",
-                 color = "black", breaks = c(-200, -1000)) + 
+    geom_contour(data = bathym, aes(x = longitude, y = latitude, z = altitude, linetype = factor(..level..)), 
+                 stat = "contour", color = "black", breaks = c(-200, -1000)) + 
     scale_linetype_manual("depth", values = c("solid", "dashed")) +
-    geom_segment(data = geosAgg, aes(x = lonrd, y = latrd, xend = lonrd + (ugos * 2), yend = latrd + (vgos * 2)), 
-                 arrow = arrow(length = unit(0.1, "cm")), na.rm = TRUE) +
+    geom_segment(data = geosAgg, aes(x = lonrd, y = latrd, xend = lonrd + (ugos * 3), 
+                    yend = latrd + (vgos * 3)), arrow = arrow(length = unit(0.1, "cm")), na.rm = TRUE) +
     guides(line_type = guide_legend(order = 1), color = guide_legend(order = 2), fill = guide_colorbar(order = 3)) +
     geom_path(data = shipSub, aes(x = lon, y = lat), color = "orchid1") +
     geom_point(data = shipSub, aes(x = lon, y = lat, color = locn), size = 2) + 
